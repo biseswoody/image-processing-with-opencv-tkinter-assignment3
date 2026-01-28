@@ -31,7 +31,7 @@ class ImageProcessor:
 
 
     # Functions to be implemented:
-    # SET 1: IMAGE LOAD AND SAVE OPERATIONS
+    # SET 1: IMAGE LOAD AND SAVE OPERATIONS. TBD: Bishesh
     def load_image(self, filepath: str) -> bool:
         """Load the image from a given path.
 
@@ -73,7 +73,7 @@ class ImageProcessor:
         """Reset the currently transformed image to the original state"""
         print(f"This function resets image back to original state at {self._filename}")
 
-    # SET 2: Primary Image Transformations
+    # SET 2: Primary Image Transformations. TBD: Sandeep.
 
     def apply_grayscale_filter(self) -> None:
         """Convert the current image to grayscale image"""
@@ -130,7 +130,7 @@ class ImageProcessor:
 
         print(f"This function adjusts the contrast of the image at {self._filename}")
 
-    # SET 3 - IMAGE TRANSFORMATION FUNCTIONS
+    # SET 3 - IMAGE TRANSFORMATION FUNCTIONS. TBD: Aryan.
 
     def rotate_image(self, angle: int) -> None:
         """Rotate the image by given angle
@@ -192,7 +192,7 @@ class ImageProcessor:
         print("Clearing history.")
 
 
-    # SET 4: Additional functions, because the preview implementation needs special functions to not apply cumulative values and pollute the history stack with incorrect values
+    # SET 4: Additional functions, because the preview implementation needs special functions to not apply cumulative values and pollute the history stack with incorrect values. TBD: Yasmeen
 
     def start_preview(self) -> None:
         """Save current state before slider adjustment begins - very important!!!! will DEFINITELY mess up things if previews are applied on current image and NOT a copy of the current image"""
