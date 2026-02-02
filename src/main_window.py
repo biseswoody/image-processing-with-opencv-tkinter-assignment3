@@ -113,12 +113,46 @@ class ControlPanel:
             processor: ImageProcessor instance
             update_callback: Callback to update display
         """
+        self.parent = parent
+        self.processor = processor
+        self.update_callback = update_callback
+
+        self.frame = ttk.LabelFrame(parent, text="Controls", padding=10)
+        # Take up the entire vertical space on the left
+        self.frame.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=5)
+
+        # Tracking active slider, to know which transformation to apply. Without this, granular atomic update is a massive pain in the neck
+        self._slider_active = None
+
+        # Now, sub-widgets created by individual functions:
+        # 1. Basic controls: Basic grayscale & edge detection (buttons)
+        self._create_basic_controls()
+        # 2. Adjustment controls: Blur, Brightness, Contrast (sliders)
+        self._create_adjustment_controls()
+        # 3. Transform controls: Rotate 90, 180, 270, Flip horizontal & flip vertical
+        self._create_transform_controls()
+        # 4. Resize controls: Image resize with w, h, apply button, and restore original image
+        self._create_resize_controls()
+
+
 
     def _create_basic_controls(self) -> None:
         """Create basic filter controls"""
+        ttk.Label(self.frame, text="Basic Filters", font=("Helvetica", 10, "bold")).grid(row=0, column=0, columnspan=2, pady=5)
+
+        # Convert to Grayscale button
+        ttk.Button(self.frame, text="Convert to Grayscale", command=self._apply_grayscale).grid(row=1, column=0, columnspan=2, pady=2, sticky="ew")
+
+        # Edge Detection button
+        ttk.Button(self.frame, text="Edge Detection", command=self._apply_edge_detection).grid(row=2, column=0, columnspan=2, pady=2, sticky="ew")
+
+
 
     def _create_adjustment_controls(self) -> None:
         """Create adjustment sliders"""
+        ttk.Label(self.frame, text="Adjustments", font=("Helvetica", 10, "bold")).grid(row=3, column=0, columnspan=2, pady=(10,5))
+
+
 
     def _create_transform_controls(self) -> None:
         """Create transformation controls"""
