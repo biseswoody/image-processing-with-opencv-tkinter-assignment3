@@ -1,45 +1,10 @@
 import tkinter as tk
+from tkinter import ttk
 import numpy as np
-from image_processor import ImageProcessor
+from .image_processor import ImageProcessor
 from typing import Callable
 
 # PLEASE REFER TO THE REFERENCE UI SCREENSHOT BEFORE YOU WORK ON YOUR SECTIONS
-
-# SET 1 - TBD: Sandeep
-class ImageProcessorApp:
-    """This is the main application class, initialised by main"""
-
-    def __init__(self):
-        """Initialisation happens here."""
-        # Things to be done:
-        # 0. Create application root window & initialise the image processor
-        # 1. Create widgets from Tkinter
-        # 2. Setup the layout and add widgets to layout
-        # 3. Update the display window with the layouts
-
-    def _create_widgets(self) -> None:
-        """All GUI components need to be created here"""
-        # Things to be done:
-        # 1. Create control panel
-        # 2. Create image canvas
-        # 3. Create menu manager
-        # 4. Add these widgets to main root
-
-    def _setup_layout(self) -> None:
-        """Setup the layout here"""
-        # Things to be done:
-        # 1. ControlPanel constructor to pack the control to left
-        # 2. Pack the canvas to fill the rest of the space
-
-    def _update_display(self) -> None:
-        """Update the image display and status bar"""
-        # Things to be done:
-        # 1. Get current image
-        # 2. Display filename, dimension, format as needed
-
-    def run(self) -> None:
-        """Run the application"""
-        # self.root.mainloop() goes here
 
 
 # SET 2 - TBD: Aryan
@@ -205,6 +170,69 @@ class ControlPanel:
 
     def _reset_image(self) -> None:
         """Reset image to original state"""
+
+
+# SET 1 - TBD: Sandeep
+class ImageProcessorApp:
+    """This is the main application class, initialised by main"""
+
+    def __init__(self):
+        """Initialisation happens here."""
+        self.root = tk.Tk()
+        self.root.title("Image Processor")
+        self.root.geometry("1000x800")
+        self.root.minsize(800,600)
+
+        self.processor = ImageProcessor()
+
+        self._create_widgets()
+        self._setup_layout()
+        self._update_display()
+
+    def _create_widgets(self) -> None:
+        """All GUI components need to be created here"""
+        # Things to be done:
+
+        # 0. Create main container first, actually
+        # IMPORTANT: ttk, NOT tk. ttk = Themed TK, perfect for native look/feel
+        self.main_container = ttk.Frame(self.root)
+        self.main_container.pack(fill=tk.BOTH, expand=True)
+
+        # 1. Create control panel
+        self.control_panel = ControlPanel(self.main_container, self.processor, self._update_display)
+
+        # 2. Create image canvas
+        self.image_canvas = ImageCanvas(self.main_container)
+
+        # 3. Create menu manager
+        self.menu_manager = MenuManager(self.root, self.processor, self._update_display)
+
+        # 4. Create Status bar
+        self.status_bar = StatusBar(self.root)
+
+        # 5. My bad I'm dumb - no need to add everything to root, since main_container is passed already to each widget function
+
+    def _setup_layout(self) -> None:
+        """Setup the layout here"""
+        # Things to be done:
+        # 1. ControlPanel constructor to pack the control to left - TBD: to be implemented in the ControlPanel constructor, NOT here
+        # 2. Pack the canvas to fill the rest of the space
+        self.image_canvas.canvas.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+    def _update_display(self) -> None:
+        """Update the image display and status bar"""
+        # Things to be done:
+        # 1. Get current image and set it to the current image in canvas, basically live rendering on changes
+        current_image = self.processor.get_current_image()
+        self.image_canvas.display_image(current_image)
+        # 2. Display filename, dimension, format as needed
+        filename, dimensions, format_name = self.processor.get_image_info()
+        self.status_bar.update_info(filename, dimensions, format_name)
+
+    def run(self) -> None:
+        """Run the application"""
+        self.root.mainloop()
+
 
 if __name__ == "__main__":
     app = ImageProcessorApp()
