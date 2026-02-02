@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import numpy as np
 from .image_processor import ImageProcessor
 from typing import Callable
@@ -216,54 +216,183 @@ class ControlPanel:
 
     def _create_transform_controls(self) -> None:
         """Create transformation controls"""
+        ttk.Label(self.frame, text="Transform", font=("Helvetica", 10, "bold")).grid(
+            row=7, column=0, columnspan=2, pady=(10, 5)
+        )
+        # The buttons will be in a grid
+        transform_frame = ttk.Frame(self.frame)
+        transform_frame.grid(row=8, column=0, columnspan=2, pady=2)
+
+        # Rotate 90 button
+        ttk.Button(
+            transform_frame, text="Rotate 90°", command=lambda: self._rotate_image(90)
+        ).pack(side=tk.LEFT, padx=2)
+
+        # Rotate 180 button
+        ttk.Button(
+            transform_frame, text="Rotate 180°", command=lambda: self._rotate_image(180)
+        ).pack(side=tk.LEFT, padx=2)
+
+        # Rotate 270 button
+        ttk.Button(
+            transform_frame, text="Rotate 270°", command=lambda: self._rotate_image(270)
+        ).pack(side=tk.LEFT, padx=2)
+
+        # Separate frames for flip buttons
+        flip_frame = ttk.Frame(self.frame)
+        flip_frame.grid(row=9, column=0, columnspan=2, pady=2)
+
+        # Flip Horizontal button
+        ttk.Button(
+            flip_frame, text="Flip H", command=lambda: self._flip_image("horizontal")
+        ).pack(side=tk.LEFT, padx=2)
+
+        # Flip Vertical button
+        ttk.Button(
+            flip_frame, text="Flip V", command=lambda: self._flip_image("vertical")
+        ).pack(side=tk.LEFT, padx=2)
 
     def _create_resize_controls(self) -> None:
         """Create resize controls"""
+        ttk.Label(self.frame, text="Resize", font=("Helvetica", 10, "bold")).grid(
+            row=10, column=0, columnspan=2, pady=(10, 5)
+        )
+
+        size_frame = ttk.Frame(self.frame)
+        size_frame.grid(row=11, column=0, columnspan=2, pady=2)
+
+        # As done earlier, width and height variables need to be saved in a StringVar for reactive changes
+        ttk.Label(size_frame, text="W:").pack(side=tk.LEFT)
+        self.width_var = tk.StringVar(value="1000")
+        ttk.Entry(size_frame, textvariable=self.width_var, width=6).pack(
+            side=tk.LEFT, padx=2
+        )
+        ttk.Label(size_frame, text="H:").pack(side=tk.LEFT)
+        self.height_var = tk.StringVar(value="800")
+        ttk.Entry(size_frame, textvariable=self.height_var, width=6).pack(
+            side=tk.LEFT, padx=2
+        )
+
+        # Apply resize
+        ttk.Button(self.frame, text="Apply Resize", command=self._resize_image).grid(
+            row=12, column=0, columnspan=2, pady=2, sticky="ew"
+        )
+
+        # Revert to original
+        ttk.Button(
+            self.frame, text="Reset to Original", command=self._reset_image
+        ).grid(row=13, column=0, columnspan=2, pady=(10, 2), sticky="ew")
+
 
     def _apply_grayscale(self) -> None:
         """Apply grayscale filter"""
+        # First, we confirm and commit the preview
+        self.processor.commit_preview(clear_base=True)
+        # Then we reset the active slider
+        self._slider_active = None
+        # The actual grayscale application is called here
+        self.processor.apply_grayscale()
+        # The update callback now displays grayscale image
+        self.update_callback()
 
     def _apply_edge_detection(self) -> None:
-        """Apply edge detection filter"""
+        """Apply edge detection filter."""
+        self._slider_active = None
+        self.processor.apply_edge_detection()
+        self.update_callback()
 
     def _rotate_image(self, angle: int) -> None:
-        """Rotate image by specified angle"""
+        """Rotate image by specified angle."""
+        self._slider_active = None
+        self.processor.rotate_image(angle)
+        self.update_callback()
 
     def _flip_image(self, direction: str) -> None:
-        """Flip image in specified direction"""
+        """Flip image in specified direction."""
+        self._slider_active = None
+        self.processor.flip_image(direction)
+        self.update_callback()
 
     def _resize_image(self) -> None:
-        """Resize image to specified dimensions"""
+        """Resize image to specified dimensions."""
+        try:
+            width = int(self.width_var.get())
+            height = int(self.height_var.get())
+            if width > 0 and height > 0:
+                self._slider_active = None
+                self.processor.resize_image(width, height)
+                self.update_callback()
+        except ValueError:
+            messagebox.showerror("Error", "Invalid dimensions entered")
 
+
+    # THESE METHODS ARE CRUCIAL FOR CORRECT APPLICATION OF FILTERS
     def _start_blur_adjustment(self) -> None:
         """Start blur adjustment, save base state only if not already adjusting blur."""
+        if self._slider_active != "blur":
+            self.processor.start_preview()
+        self._slider_active = "blur"
 
     def _on_blur_preview(self) -> None:
         """Preview blur while dragging."""
+        if self._slider_active == "blur":
+            intensity = self.blur_var.get()
+            self.processor.apply_blur_preview(intensity)
+            self.update_callback()
 
     def _finish_blur_adjustment(self) -> None:
         """Finish blur adjustment - commit to history, BUTTTTTT keep the base for further adjustments"""
+        if self._slider_active == "blur":
+            self.processor.commit_preview(clear_base=False)
+            # self._slider_active = None
 
     def _start_brightness_adjustment(self) -> None:
         """Start brightness adjustment - save base state"""
+        if self._slider_active != "brightness":
+            self.processor.start_preview()
+        self._slider_active = "brightness"
 
     def _on_brightness_preview(self) -> None:
         """Preview brightness while dragging"""
+        if self._slider_active == "brightness":
+            brightness = self.brightness_var.get()
+            self.processor.adjust_brightness_preview(brightness)
+            self.update_callback()
 
     def _finish_brightness_adjustment(self) -> None:
         """Finish brightness adjustment - commit to history"""
+        if self._slider_active == "brightness":
+            self.processor.commit_preview(clear_base=False)
+            # self._slider_active = None
 
     def _start_contrast_adjustment(self) -> None:
         """Start contrast adjustment - save base state"""
+        if self._slider_active != "contrast":
+            self.processor.start_preview()
+        self._slider_active = "contrast"
 
     def _on_contrast_preview(self) -> None:
         """Preview contrast while dragging"""
+        if self._slider_active == "contrast":
+            contrast = self.contrast_var.get()
+            self.processor.adjust_contrast_preview(contrast)
+            self.update_callback()
 
     def _finish_contrast_adjustment(self) -> None:
         """Finish contrast adjustment - commit to history"""
+        if self._slider_active == "contrast":
+            self.processor.commit_preview(clear_base=False)
+            # self._slider_active = None
 
     def _reset_image(self) -> None:
         """Reset image to original state"""
+        self._slider_active = None
+        self.processor._preview_base = None
+        self.processor.reset_to_original()
+        self.update_callback()
+        self.blur_var.set(0)
+        self.brightness_var.set(0)
+        self.contrast_var.set(1.0)
 
 
 # SET 1 - TBD: Sandeep
