@@ -40,24 +40,49 @@ class ImageCanvas:
 
 # Set 3 - TBD: Bishesh
 class StatusBar:
-    """Status bar component for displaying image metadata"""
+    """Status bar component for displaying image information."""
 
     def __init__(self, parent: tk.Widget):
-        """Initialise the status bar
-
-        Args:
-            parent: Parent tkinter widget
         """
-
-    def update_metadata(self, filename: str, dimensions: tuple, format_name: str) -> None:
-        """Update the status bar metadata of the image IF the image changes
+        Initialize status bar.
 
         Args:
-            filename: Image filename,
-            dimensions: Tuple(width: int, height: int)
+            parent: Parent widget
+        """ 
+        self.frame = ttk.Frame(parent)  # Create the main frame for the status bar
+        self.frame.pack(fill=tk.X, side=tk.BOTTOM)  # Pack at the bottom of the parent, horizontally
+
+        self.filename_label = ttk.Label(self.frame, text="No image loaded")  # Display current filename
+        self.filename_label.pack(side=tk.LEFT, padx=5)  # Position with padding
+
+        self.separator = ttk.Separator(self.frame, orient=tk.VERTICAL)  # Seperator between filename and dimensions
+        self.separator.pack(side=tk.LEFT, fill=tk.Y, padx=5)  # Fill with padding
+
+        self.dimensions_label = ttk.Label(self.frame, text="Dimensions: -")  # Label to display dimension of image (width x height)
+        self.dimensions_label.pack(side=tk.LEFT, padx=5)  
+
+        self.separator2 = ttk.Separator(self.frame, orient=tk.VERTICAL)  # Second seperator between dimension and format
+        self.separator2.pack(side=tk.LEFT, fill=tk.Y, padx=5)
+
+        self.format_label = ttk.Label(self.frame, text="Format: -")  # Label to display image format
+        self.format_label.pack(side=tk.LEFT, padx=5)
+
+    def update_info(self, filename: str, dimensions: tuple, format_name: str) -> None:
+        """
+        Update status bar information.
+
+        Args:
+            filename: Image filename
+            dimensions: Image dimensions (width, height)
             format_name: Image format
-
         """
+        self.filename_label.config(text=f"File: {filename}")  # Update filename display
+        # Update dimension in "widthxheight" format
+        # dimension[0]=widhth, dimension[1]=height
+        self.dimensions_label.config(
+            text=f"Dimensions: {dimensions[0]}x{dimensions[1]}"
+        )
+        self.format_label.config(text=f"Format: {format_name}")  # Update the format display
 
 
 # Set 4 - TBD: Yasmeen
