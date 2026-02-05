@@ -1,6 +1,7 @@
-import numpy as np
 import cv2
+import numpy as np
 from typing import Optional, Tuple, List
+import os
 
 class ImageProcessor:
     """Core class that processes images with OpenCV. All image manipulation happen with an ImageProcessor instance"""
